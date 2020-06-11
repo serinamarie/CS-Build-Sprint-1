@@ -7,10 +7,14 @@ import numpy as np
 
 class DecisionTreeClassifier:
     '''For numeric data only'''
+
+    tree = None
+
     def __init__(self, min_samples=2, max_depth=5):
         
         self.max_depth = max_depth
         self.min_samples = min_samples
+
 
     def calculate_entropy(self, data):
 
@@ -110,8 +114,34 @@ class DecisionTreeClassifier:
 
     def find_best_split(data, potential_splits):
 
-        overall_entropy = 9999
+        lowest_entropy = 9999
 
+        # for each dictionary key
+        for key in potential_splits:
+            
+            # for each value for that key
+            for value in potential_splits[key]:
+
+                # split our data into on that threshold (value)
+                data_below_threshold, data_above_threshold = split_data(
+                    data=data, 
+                    split_feature=key,
+                    split_threshold=value)
+                
+                # calculate entropy at this split
+                entropy_for_this_split = overall_entropy(data_below_threshold, data_above_threshold)
+
+                # if entropy at this split is lower than the lowest entropy found so far
+                if entropy_for_this_split < lowest_entropy:
+
+                    # the entropy at this split is now the lowest 
+                    lowest_entropy = entropy_for_this_split
+
+                    # keep a record of this key, value pair
+                    best_split_feature = key
+                    best_split_threshold = value
+
+        # return the best potential split
         return best_split_feature, best_split_threshold
 
 
@@ -128,9 +158,55 @@ class DecisionTreeClassifier:
 
         
         # result must be set to fitted_tree or something
+
+    def classify_observation(observation, tree):
+
+        # if the tree is not None
+        if tree:
+
+            # store the current question 
+            question = list(tree.keys())[0]
+
+            # grab the feature name and value 
+            feature_name, _, value = question.split()
+
+            # if the row at that feature column is less than the threshold
+            if observation[feature_name] <= float(value):
+
+                # answer yes, it's under the threshold
+                answer = tree[question][0]
+
+            # if the row at that feature column has exceeded the threshold
+            else:
+
+                # answer no, it has exceeded the threshold
+                answer = tree[question][1]
+
+            # if the answer is not a dictionary
+            if not isinstance(answer, dict):
+
+                # return answer as it is a class label
+                return answer
+
+            # if the answer is a dictionary
+            else:
+                # recursion with the 'answer' subtree as the tree argument
+                return classify_observation(observation, answer)
+
+
         
-    def predict(self, test):
-        pass
+    def predict(self, test_df, tree):
+
+        # if a tree has been fitted
+        if tree: 
+
+            # create a new column for our predictions
+            test_df['predictions'] = test_df.apply(class)
+
+            # calculate how accurate the predictions are
+
+            # return the accuracy
+
 
 
 if __name__ == '__main__':
