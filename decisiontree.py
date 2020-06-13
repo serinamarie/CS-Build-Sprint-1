@@ -190,6 +190,7 @@ class DecisionTreeClassifier:
 
             # if the answer is a dictionary
             else:
+
                 # recursion with the 'answer' subtree as the tree argument
                 return classify_observation(observation, answer)
 
@@ -201,11 +202,13 @@ class DecisionTreeClassifier:
         if tree: 
 
             # create a new column for our predictions
-            test_df['predictions'] = test_df.apply(class)
+            test_df['predictions'] = test_df.apply(classify_observation, axis=1, args=(tree,))
 
-            # calculate how accurate the predictions are
+            # return True or False where our predictions are equal to our labels
+            test_df['correct_predictions'] = test_df['predictions'] == test_df.iloc[:,-1]
 
-            # return the accuracy
+            # return how accurate the predictions are
+            return test_df['correct_predictions'].mean()
 
 
 
