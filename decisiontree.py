@@ -8,17 +8,24 @@ import numpy as np
 class DecisionTreeClassifier:
     '''For numeric data only'''
 
-    tree = None
-
-    def __init__(self, min_samples=2, max_depth=5):
+    def __init__(self, min_samples=2, max_depth=5, tree=None):
         
         self.max_depth = max_depth
         self.min_samples = min_samples
+        self.tree = None
 
+    def fit(self, train_df):
+
+        self.tree = self.decision_tree(train_df, self.min_samples, self.max_depth)
+        return self
 
     def calculate_entropy(self, data):
 
-        counts = label_counts(data)
+        # labels for input data
+        labels = data[:, -1]
+
+        # instantiate a Counter object on the labels
+        counts = Counter(labels)
 
         # get the label probabilities
         probabilities = counts / counts.sum()
@@ -32,7 +39,7 @@ class DecisionTreeClassifier:
     def purity_check(self, data):
 
         # last column of the df must be the labels!
-        labels = data[:,-1]
+        labels = data[-1]
 
         # if data has only one kind of label
         if len(np.unique(labels)) == 1:
@@ -145,21 +152,93 @@ class DecisionTreeClassifier:
         return best_split_feature, best_split_threshold
 
 
-    def fit(self, df, counter=0):
+    def decision_tree(self, train_df, min_samples, max_depth, counter=0):
+
         '''only one arg needed (df). fitting this training df will account for
         splitting data into X and y'''
-        if counter == 0:
-            global column_headers
-            column_headers = df.columns
-            data = df.values
 
+        # if this is our first potential split
+        if counter == 0:
+
+            # set this global variable so we can use it each time we call decision_tree()
+            global feature_names
+            feature_names = train_df.columns
+
+            # get our df values
+            data = train_df.values
+
+        # if we have recursively reached this point
         else:
-            data = df
+
+            # our 'train_df' is actually already an array upon recursion
+            data = train_df
+
+        # base case: if our impurity for a subtree is 0 or we have reached our 
+        # maximum depth or min samples
+        
+        if (purity_check(data)) or (len(data) < min_samples) or (counter == max_depth):
+            
+            # at this point we'll have to make a judgment call and classify it based on the majority
+            majority_vote = make_classification(data)
+
+            return majority_vote
+
+        # if we haven't reach one of our stopping points
+        else:
+
+            # increment counter
+            counter += 1
+
+            # get a dictionary of our potetnial splits
+            potential_splits = potential_splits(data)
+
+            # find the best split
+            split_feature, split_threshold = find_best_split(data, potential_splits)
+
+            # get the data below and above
+            data_below_threshold, data_above_threshold = split_data(data, split_feature, split_threshold)
+
+            # store feature name as string
+            feature_name_as_string = feature_names[split_feature]
+
+            # feature_name <= threshold value
+            question = "{} <= {}".format(feature_name_as_string, split_threshold)
+
+            # create a dictionary with our questions 
+            subtree = {question: []}
+
+            # recursion on our true values
+            answer_true = decision_tree(data_below_threshold, counter, min_samples, max_depth)
+
+            # recursion on our false values
+            answer_false = decision_tree(data_above_threshold, counter, min_samples, max_depth)
+
+            # if both answers are the same class
+            if answer_true == answer_false:
+
+                # choose one to be the subtree
+                subtree = answer_true
+            
+            # if answers result in different class
+            else:
+
+                # append to dictionary
+                subtree[question].append(answer_true)
+                subtree[question].append(answer_false)
+            
+            return subtree
+
+
+
+
+
+
+
 
         
         # result must be set to fitted_tree or something
 
-    def classify_observation(observation, tree):
+    def classify_observation(self, observation, tree):
 
         # if the tree is not None
         if tree:
@@ -193,8 +272,6 @@ class DecisionTreeClassifier:
 
                 # recursion with the 'answer' subtree as the tree argument
                 return classify_observation(observation, answer)
-
-
         
     def predict(self, test_df, tree):
 
@@ -210,8 +287,6 @@ class DecisionTreeClassifier:
             # return how accurate the predictions are
             return test_df['correct_predictions'].mean()
 
-
-
 if __name__ == '__main__':
     sample_df = pd.DataFrame({
         'col1': [1, 2, 3, 4, 'blue'], 
@@ -220,12 +295,14 @@ if __name__ == '__main__':
     })
     train, test = train_test_split(sample_df, 0.2)
     d = DecisionTreeClassifier()
+    # print(d)
     train_data = train.values
-    if d.purity_check(train_data):
-        print("True positive")
-    else:
-        print("False negative :0")
-    # tree = d.fit(train)
+    d.fit(train)
+    # if d.purity_check(train_data):
+    #     print("True positive")
+    # else:
+    #     print("False negative :0")
+# d.purity_check(train_data)
     # print(tree)
 
     # l = Label(sample_df.values)
