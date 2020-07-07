@@ -28,7 +28,6 @@ def train_test_split(df, test_size):
 # https://stackoverflow.com/questions/40914862/why-is-random-sample-faster-than-numpys-random-choice
 
 if __name__ == "__main__":
-    sample_df = pd.DataFrame({'col1': [1, 2, 3, 4, 5], 'col2': [3, 4, 5, 6, 7]})
-    train, test = train_test_split(sample_df, 0.2)
+     
     print('train:', len(train))
     print('test:', len(test))
