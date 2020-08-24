@@ -18,12 +18,38 @@ Fri: Finish main algorithm
 Mon: Blog post draft with images
 
 Tue: Blog post draft with images
+Checkin: Still finishing main algorithm!! :o 
 
 Wed: Edit blog post
 
 Thur: Presentation prep
 
 Fri: Presenting
+
+# Actual process
+
+## Week A
+Tue: Kickoff and choosing an alogithm
+
+Wed: Thinking of doing decision tree. Design the necessary helper functions. 
+
+Thu: Helper functions
+
+Fri/Sat: Helper functions
+
+## Week B
+
+Mon: Nada
+
+Tue: Finishing main algorithm!!
+
+Wed: Get a blog post draft together!
+
+Thu: More bloggy blog stuff
+
+Fri: Present? :p
+
+
 
 ## Wednesday notes: 
 ### The normal way to fit the tree (sklearn documentation)
