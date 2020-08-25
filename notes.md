@@ -18,6 +18,7 @@ Fri: Finish main algorithm
 Mon: Blog post draft with images
 
 Tue: Blog post draft with images
+
 Checkin: Still finishing main algorithm!! :o 
 
 Wed: Edit blog post
@@ -69,4 +70,4 @@ Alternatively, the probability of each class can be predicted, which is the frac
 >>> clf.predict_proba([[2., 2.]])
 array([[0., 1.]])
 
-Need to split our data, create our main algorithm, think of metrics
+Need to split our data, create our main algorithm, design metric
