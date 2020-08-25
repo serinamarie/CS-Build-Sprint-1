@@ -5,13 +5,14 @@ import pandas as pd
 class DecisionTreeClassifier:
     '''For numeric data only'''
     def __init__(self, min_samples=2, max_depth=5):
+        
         self.max_depth = max_depth
         self.min_samples = min_samples
 
     def purity_check(self, data):
 
         # last column of the df must be the labels!
-        true_labels = data[:,-1]
+        labels = data[:,-1]
 
         # if data has only one kind of label
         if len(np.unique(true_labels)) == 1:
@@ -25,7 +26,38 @@ class DecisionTreeClassifier:
             # it isn't pure
             return False
 
+    def make_classification(self, data):
+
+        '''Once the max depth or min samples or purity is 1, 
+        we classify the data with whatever the majority of the labels are'''
+
+        # labels for input data
+        labels = data[:, -1]
+
+        # instantiate a Counter object on the labels
+        counter = Counter(labels)
+
+        # return the most common class/label
+        return counter.most_common(1)[0][0]
+
     def entropy(self, data):
+
+        # labels for input data
+        labels = data[:,-1]
+
+        # instantiate a Counter object on the labels
+        counter = Counter(labels)
+
+        # get the label counts
+        counts = np.array([c[1] for c in counter.most_common()])
+
+        # get the label probabilities
+        probabilities = counts / counts.sum()
+
+        # calculate the entropy
+        entropy = sum(probabilities * -np.log2(probabilities))
+
+        # return the entropy
         return entropy 
 
     def split_data(self, data, split_feature, split_threshold):
@@ -51,10 +83,6 @@ class DecisionTreeClassifier:
         
         # result must be set to fitted_tree or something
         
-
-
-
-    
     def predict(self, test):
         pass
 
