@@ -1,3 +1,5 @@
+
+
 from helperfunctions import train_test_split
 import pandas as pd
 from collections import Counter
@@ -13,7 +15,6 @@ class DecisionTreeClassifier:
         self.min_samples = min_samples
         self.tree = None
         
-        
     def fit(self, train_df):
         
         # run method decision_tree and set it as the self.tree attribute
@@ -27,10 +28,8 @@ class DecisionTreeClassifier:
         # if a tree has been fitted
         if self.tree:
             
-            # store true labels for our test_df
+            # store true labels of our test_df for later comparison
             y_test_true = test_df.iloc[:, -1]
-            
-            test_df = test_df.copy()
             
             # create a new column for our predictions
             test_df['predictions'] = test_df.apply(self.classify_observation, axis=1, args=(self.tree,))
@@ -44,31 +43,12 @@ class DecisionTreeClassifier:
         # if a tree wasn't fitted
         else:
             print("NotFittedError: Please fit your decision tree first!")
-            
-
-    def purity(self, data):
-
-        # last column of the df must be the labels!
-        labels = data[:, -1]
-
-        # if data has only one kind of label
-        if len(np.unique(labels)) == 1:
-
-            # it is pure
-            return True
-
-        # if data has a few different labels still
-        else:
-
-            # it isn't pure
-            return False
-
 
     def entropy(self, data):
 
         # labels for input data
-        labels = data[:,-1]
-
+        labels = data[:, -1]
+        
         # get unique labels along with their counts
         _, label_counts = np.unique(labels, return_counts=True)
 
@@ -77,8 +57,7 @@ class DecisionTreeClassifier:
         
         # return entropy
         return sum(probabilities * -np.log2(probabilities))
-    
-    
+
     def overall_entropy(self, data_below_threshold, data_above_threshold):
 
         '''Overall entropy'''
@@ -88,7 +67,39 @@ class DecisionTreeClassifier:
 
         return (p_below * self.entropy(data_below_threshold)) + (p_above * self.entropy(data_above_threshold))
 
-    
+    def potential_splits(self, data):
+        
+        # dictionary of splits
+        potential_splits = {}
+
+        # store the number of features (not including labels/target)
+        n_features = len(data[0])
+
+        # for each feature in possible features
+        for feature in range(n_features - 1):
+
+            # for our dictionary, each feature should be a key
+            potential_splits[feature] = []
+
+            # we need to iterate through each feature's unique values
+            unique_values_for_feature = np.unique(data[feature])
+
+            for index in range(len(unique_values_for_feature)):
+                
+                if index != 0:
+
+                    # we need to partition the data, we need the midpoint between the unique values
+                    current = unique_values_for_feature[index]
+                    prev = unique_values_for_feature[index - 1]
+                    midpoint = (current + prev) / 2
+
+                    # for our dictionary each value should be a midpoint between the 
+                    # unique values for that feature
+                    potential_splits[feature].append(midpoint)
+
+        # return dictionary
+        return potential_splits
+
     def make_classification(self, data):
 
         '''Once the max depth or min samples or purity is 1, 
@@ -110,40 +121,7 @@ class DecisionTreeClassifier:
 
         # array where feature values do not exceed threshold, array where does exceed threshold
         return data[feature_values <= split_threshold], data[feature_values > split_threshold]
-    
 
-    def potential_splits(self, data):
-        
-        # dictionary of splits
-        potential_splits = {}
-
-        # store the number of features (not including labels/target)
-        n_features = len(data[0])
-
-        # for each feature in possible features
-        for feature in range(n_features - 1):
-
-            # for our dictionary, each feature should be a key
-            potential_splits[feature] = []
-
-            # we need to iterate through each feature's unique values
-            unique_values_for_feature = np.unique(data[:, feature])
-
-            for index in range(len(unique_values_for_feature)):
-                
-                if index != 0:
-
-                    # we need to partition the data, we need the midpoint between the unique values
-                    current = unique_values_for_feature[index]
-                    prev = unique_values_for_feature[index - 1]
-                    midpoint = (current + prev) / 2
-
-                    # for our dictionary each value should be a midpoint between the 
-                    # unique values for that feature
-                    potential_splits[feature].append(midpoint)
-
-        # return dictionary
-        return potential_splits
 
     def find_best_split(self, data, potential_splits):
 
@@ -176,6 +154,25 @@ class DecisionTreeClassifier:
 
         # return the best potential split
         return best_split_feature, best_split_threshold
+    
+
+    def purity(self, data):
+
+        # last column of the df must be the labels!
+        labels = data[-1]
+
+        # if data has only one kind of label
+        if len(np.unique(labels)) == 1:
+
+            # it is pure
+            return True
+
+        # if data has a few different labels still
+        else:
+
+            # it isn't pure
+            return False
+
 
     def decision_tree(self, train_df, min_samples, max_depth, counter=0):
 
@@ -282,7 +279,6 @@ class DecisionTreeClassifier:
 
             # recursion with the 'answer' subtree as the tree argument
             return self.classify_observation(observation, answer)
-        
 
 if __name__ == '__main__':
     sample_df = pd.DataFrame({
@@ -295,9 +291,8 @@ if __name__ == '__main__':
     # print(d)
     train_data = train.values
 
-    d.entropy(train_data)
-    # d.fit(train)
-    # d.predict(test)
+    d.fit(train)
+
     # print(test)
     # if d.purity_check(train_data):
     #     print("True positive")
