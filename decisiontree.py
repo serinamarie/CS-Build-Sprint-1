@@ -1,5 +1,4 @@
 from helperfunctions import train_test_split
-import pandas as pd
 from collections import Counter
 import numpy as np
 
@@ -300,11 +299,13 @@ class DecisionTreeClassifier:
         
 
 if __name__ == '__main__':
+    import pandas as pd
     sample_df = pd.DataFrame({
         'col1': [1, 2, 3, 4, 'blue'], 
         'col2': [3, 4, 5, 6, 'blue'],
         'col3': [3, 4, 5, 6, 'red'],
     })
+    del pd
     train, test = train_test_split(sample_df, 0.2)
     d = DecisionTreeClassifier()
     # print(d)
