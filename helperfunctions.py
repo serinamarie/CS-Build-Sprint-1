@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-def train_test_split(df, test_size):
+def train_test_split(df, test_size=0.2):
 
     '''Splits a dataframe into training and testing data'''
 
