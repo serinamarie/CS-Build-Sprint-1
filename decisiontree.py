@@ -7,12 +7,12 @@ class DecisionTreeClassifier:
     '''Can handle numeric features and dataframes that are free of missing data.
     If missing values, please impute first.'''
 
-    def __init__(self, min_samples=2, max_depth=5, tree=None):
+    def __init__(self, min_samples=2, max_depth=5, tree=None, append=None):
         
         self.max_depth = max_depth
         self.min_samples = min_samples
         self.tree = None
-        
+        self.append = None
         
     def fit(self, train_df):
         
@@ -20,49 +20,6 @@ class DecisionTreeClassifier:
         self.tree = self.decision_tree(train_df, self.min_samples, self.max_depth)
         
         return self
-    
-    
-    def predict(self, test_df):
-
-        # if a tree has been fitted
-        if self.tree:
-            
-            # store true labels for our test_df
-            y_test_true = test_df.iloc[:, -1]
-            
-            test_df = test_df.copy()
-            
-            # create a new column for our predictions
-            test_df['predictions'] = test_df.apply(self.classify_observation, axis=1, args=(self.tree,))
-            
-            # return True or False where our predictions are equal to our labels
-            test_df['correct_predictions'] = test_df['predictions'] == y_test_true
-
-            # return how accurate the predictions are
-            return ("Accuracy:", test_df['correct_predictions'].mean())
-        
-        # if a tree wasn't fitted
-        else:
-            print("NotFittedError: Please fit your decision tree first!")
-            
-
-    def purity(self, data):
-
-        # last column of the df must be the labels!
-        labels = data[:, -1]
-
-        # if data has only one kind of label
-        if len(np.unique(labels)) == 1:
-
-            # it is pure
-            return True
-
-        # if data has a few different labels still
-        else:
-
-            # it isn't pure
-            return False
-
 
     def entropy(self, data):
 
@@ -77,18 +34,7 @@ class DecisionTreeClassifier:
         
         # return entropy
         return sum(probabilities * -np.log2(probabilities))
-    
-    
-    def overall_entropy(self, data_below_threshold, data_above_threshold):
 
-        '''Overall entropy'''
-
-        p_below = len(data_below_threshold) / (len(data_below_threshold) + len(data_above_threshold))
-        p_above = len(data_above_threshold) / (len(data_below_threshold) + len(data_above_threshold))
-
-        return (p_below * self.entropy(data_below_threshold)) + (p_above * self.entropy(data_above_threshold))
-
-    
     def make_classification(self, data):
 
         '''Once the max depth or min samples or purity is 1, 
@@ -110,7 +56,15 @@ class DecisionTreeClassifier:
 
         # array where feature values do not exceed threshold, array where does exceed threshold
         return data[feature_values <= split_threshold], data[feature_values > split_threshold]
-    
+
+    def overall_entropy(self, data_below_threshold, data_above_threshold):
+
+        '''Overall entropy'''
+
+        p_below = len(data_below_threshold) / (len(data_below_threshold) + len(data_above_threshold))
+        p_above = len(data_above_threshold) / (len(data_below_threshold) + len(data_above_threshold))
+
+        return (p_below * self.entropy(data_below_threshold)) + (p_above * self.entropy(data_above_threshold))
 
     def potential_splits(self, data):
         
@@ -176,6 +130,25 @@ class DecisionTreeClassifier:
 
         # return the best potential split
         return best_split_feature, best_split_threshold
+    
+
+    def purity(self, data):
+
+        # last column of the df must be the labels!
+        labels = data[:, -1]
+
+        # if data has only one kind of label
+        if len(np.unique(labels)) == 1:
+
+            # it is pure
+            return True
+
+        # if data has a few different labels still
+        else:
+
+            # it isn't pure
+            return False
+
 
     def decision_tree(self, train_df, min_samples, max_depth, counter=0):
 
@@ -282,6 +255,48 @@ class DecisionTreeClassifier:
 
             # recursion with the 'answer' subtree as the tree argument
             return self.classify_observation(observation, answer)
+        
+    def predict(self, test_df):
+
+        # if a tree has been fitted
+        if self.tree:
+            
+            # store true labels for our test_df
+            y_test_true = test_df.iloc[:, -1]
+            
+            while self.append not in ['Y', 'y', 'N', 'n']:
+                
+                # ask the user if they want the DTC's predictions appended
+                self.append = input('Append predictions as new column in input dataframe? Y or N')
+                
+                # if they do 
+                if self.append in ['Y', 'y']:
+                    
+                    continue
+            
+                # if they don't want their predictions appended
+                elif self.append in ['N', 'n']:
+                    
+                    # create a copy of the test_df so results don't get appended
+                    test_df = test_df.copy()
+                    
+                # if not a valid input  
+                else:
+                    
+                    print("Not a valid input. Try again you silly goose.")
+            
+            # create a new column for our predictions
+            test_df['predictions'] = test_df.apply(self.classify_observation, axis=1, args=(self.tree,))
+            
+            # return True or False where our predictions are equal to our labels
+            test_df['correct_predictions'] = test_df['predictions'] == y_test_true
+
+            # return how accurate the predictions are
+            return ("Accuracy:", test_df['correct_predictions'].mean())
+        
+        # if a tree wasn't fitted
+        else:
+            print("NotFittedError: Please fit your decision tree first!")
         
 
 if __name__ == '__main__':

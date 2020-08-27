@@ -44,9 +44,9 @@ Mon: Nada
 
 Tue: Finishing main algorithm!!
 
-Wed: Get a blog post draft together!
+Wed: Main algorithm --> class
 
-Thu: More bloggy blog stuff
+Thu: Blog :o
 
 Fri: Present? :p
 
