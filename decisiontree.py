@@ -6,6 +6,7 @@ from collections import Counter
 import numpy as np
 
 class DecisionTreeClassifier:
+    
     '''Can handle numeric features and dataframes that are free of missing data.
     If missing values, please impute first.'''
 
@@ -66,6 +67,12 @@ class DecisionTreeClassifier:
         # if a tree wasn't fitted
         else:
             print("NotFittedError: Please fit your decision tree first!")
+
+
+    def print_tree(self):
+        
+        return self.tree
+
 
     def entropy(self, data):
 
@@ -271,10 +278,6 @@ class DecisionTreeClassifier:
                 subtree[split_question].append(answer_false)
             
             return subtree
-        
-    def print_tree(self):
-        
-        return self.tree
 
         
     def classify_observation(self, observation, tree):
@@ -296,7 +299,6 @@ class DecisionTreeClassifier:
 
             # answer no, it has exceeded the threshold
             answer = tree[split_question][1]
-        
 
         # if the answer is not a dictionary
         if not isinstance(answer, dict):
