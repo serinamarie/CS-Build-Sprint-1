@@ -1,4 +1,7 @@
+
+
 from helperfunctions import train_test_split
+import pandas as pd
 from collections import Counter
 import numpy as np
 
@@ -79,14 +82,12 @@ class DecisionTreeClassifier:
         return sum(probabilities * -np.log2(probabilities))
     
     
-    def overall_entropy(self, data_below_threshold, data_above_threshold):
-
-        '''Overall entropy'''
+    def information_gain(self, data_below_threshold, data_above_threshold):
 
         p_below = len(data_below_threshold) / (len(data_below_threshold) + len(data_above_threshold))
         p_above = len(data_above_threshold) / (len(data_below_threshold) + len(data_above_threshold))
 
-        return (p_below * self.entropy(data_below_threshold)) + (p_above * self.entropy(data_above_threshold))
+        return 1 - ((p_below * self.entropy(data_below_threshold)) + (p_above * self.entropy(data_above_threshold)))
 
 
     def purity(self, data):
@@ -167,7 +168,7 @@ class DecisionTreeClassifier:
     
     def find_best_split(self, data, potential_splits):
 
-        lowest_entropy = 9999
+        best_info_gain = 0
 
         # for each dictionary key
         for key in potential_splits:
@@ -182,13 +183,13 @@ class DecisionTreeClassifier:
                     split_threshold=value)
                 
                 # calculate entropy at this split
-                entropy_for_this_split = self.overall_entropy(data_below_threshold, data_above_threshold)
+                info_gain_for_this_split = self.information_gain(data_below_threshold, data_above_threshold)
 
                 # if entropy at this split is lower than the lowest entropy found so far
-                if entropy_for_this_split < lowest_entropy:
+                if info_gain_for_this_split > best_info_gain:
 
                     # the entropy at this split is now the lowest 
-                    lowest_entropy = entropy_for_this_split
+                    best_info_gain = info_gain_for_this_split
 
                     # keep a record of this key, value pair
                     best_split_feature = key
@@ -310,13 +311,11 @@ class DecisionTreeClassifier:
             return self.classify_observation(observation, answer)
 
 if __name__ == '__main__':
-    import pandas as pd
     sample_df = pd.DataFrame({
         'col1': [1, 2, 3, 4, 'blue'], 
         'col2': [3, 4, 5, 6, 'blue'],
         'col3': [3, 4, 5, 6, 'red'],
     })
-    del pd
     train, test = train_test_split(sample_df, 0.2)
     d = DecisionTreeClassifier()
     # print(d)
