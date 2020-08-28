@@ -270,6 +270,10 @@ class DecisionTreeClassifier:
                 subtree[split_question].append(answer_false)
             
             return subtree
+        
+    def print_tree(self):
+        
+        return self.tree
 
         
     def classify_observation(self, observation, tree):
@@ -304,7 +308,6 @@ class DecisionTreeClassifier:
 
             # recursion with the 'answer' subtree as the tree argument
             return self.classify_observation(observation, answer)
-        
 
 if __name__ == '__main__':
     import pandas as pd
