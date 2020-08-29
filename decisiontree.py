@@ -88,12 +88,23 @@ class DecisionTreeClassifier:
         return sum(probabilities * -np.log2(probabilities))
     
     
-    def information_gain(self, data_below_threshold, data_above_threshold):
-
-        p_below = len(data_below_threshold) / (len(data_below_threshold) + len(data_above_threshold))
-        p_above = len(data_above_threshold) / (len(data_below_threshold) + len(data_above_threshold))
-
-        return 1 - ((p_below * self.entropy(data_below_threshold)) + (p_above * self.entropy(data_above_threshold)))
+    def information_gain(self, data, data_below_threshold, data_above_threshold):
+        
+        parent_entropy = self.entropy(data)
+        
+        entropy_below_threshold = self.entropy(data_below_threshold)
+        
+        entropy_above_threshold = self.entropy(data_above_threshold)
+        
+        weight_below_threshold = len(data_below_threshold) / len(data)
+        
+        weight_above_threshold = len(data_above_threshold) / len(data)
+        
+        children_entropy = (weight_below_threshold * entropy_below_threshold) + (weight_above_threshold * entropy_above_threshold)
+    
+        # return information gain
+        return parent_entropy - children_entropy
+    
 
 
     def purity(self, data):
