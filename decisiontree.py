@@ -200,7 +200,7 @@ class DecisionTreeClassifier:
                     split_threshold=value)
                 
                 # calculate information gain at this split
-                info_gain_for_this_split = self.information_gain(data_below_threshold,        	                 data_above_threshold)
+                info_gain_for_this_split = self.information_gain(data_below_threshold, data_above_threshold)
 
                 # if info gain at this split is higher than the highest info gain found so far
                 if info_gain_for_this_split > best_info_gain:
