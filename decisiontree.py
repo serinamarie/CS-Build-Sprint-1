@@ -193,19 +193,19 @@ class DecisionTreeClassifier:
             # for each value for that key
             for value in potential_splits[key]:
 
-                # split our data into on that threshold (value)
+                # split our data on that threshold (value)
                 data_below_threshold, data_above_threshold = self.split_data(
                     data=data, 
                     split_feature=key,
                     split_threshold=value)
                 
-                # calculate entropy at this split
-                info_gain_for_this_split = self.information_gain(data_below_threshold, data_above_threshold)
+                # calculate information gain at this split
+                info_gain_for_this_split = self.information_gain(data_below_threshold,        	                 data_above_threshold)
 
-                # if entropy at this split is lower than the lowest entropy found so far
+                # if info gain at this split is higher than the highest info gain found so far
                 if info_gain_for_this_split > best_info_gain:
 
-                    # the entropy at this split is now the lowest 
+                    # the info gain at this split is now the highest 
                     best_info_gain = info_gain_for_this_split
 
                     # keep a record of this key, value pair
